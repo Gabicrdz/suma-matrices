@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suma de Matrices</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .dimensions {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .dimensions input {
+            width: 60px;
+            padding: 8px;
+            text-align: center;
+        }
+        .matrices-container {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .matrix {
+            margin-bottom: 20px;
+        }
+        .matrix-title {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .matrix-grid {
+            display: grid;
+            gap: 5px;
+        }
+        .matrix-grid input {
+            width: 50px;
+            height: 30px;
+            text-align: center;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 5px;
+            margin: 10px auto;
+            display: block;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .result {
+            margin-top: 20px;
+        }
+        .error {
+            color: red;
+            text-align: center;
+        }
+        .matrix-cell {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 40px;
+            width: 50px;
+            border: 1px solid #ccc;
+            background-color: #f8f8f8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Suma de Matrices</h1>
+    <div class="container">
+        <div>
+            <h2>Paso 1: Definir las dimensiones</h2>
+            <div class="dimensions">
+                <div>
+                    <label for="filas">Filas:</label>
+                    <input type="number" id="filas" min="1" max="10" value="2">
+                </div>
+                <div>
+                    <label for="columnas">Columnas:</label>
+                    <input type="number" id="columnas" min="1" max="10" value="2">
+                </div>
+                <button id="generarMatrices">Generar Matrices</button>
+            </div>
+        </div>
+
+        <div id="matricesInput" style="display: none;">
+            <h2>Paso 2: Introducir valores</h2>
+            <div class="matrices-container">
+                <div class="matrix">
+                    <div class="matrix-title">Matriz 1</div>
+                    <div id="matriz1" class="matrix-grid"></div>
+                </div>
+                <div class="matrix">
+                    <div class="matrix-title">Matriz 2</div>
+                    <div id="matriz2" class="matrix-grid"></div>
+                </div>
+            </div>
+            <button id="sumarMatrices">Sumar Matrices</button>
+            <div id="error" class="error"></div>
+        </div>
+
+        <div id="resultado" style="display: none;">
+            <h2>Paso 3: Resultado</h2>
+            <div class="matrices-container">
+                <div class="matrix">
+                    <div class="matrix-title">Matriz Resultante</div>
+                    <div id="matrizResultado" class="matrix-grid"></div>
+                </div>
+            </div>
+            <button id="nuevaSuma">Realizar Nueva Suma</button>
+        </div>
+    </div>
+
+    <script>
+        // Referencias a elementos del DOM
+        const filasInput = document.getElementById('filas');
+        const columnasInput = document.getElementById('columnas');
+        const generarMatricesBtn = document.getElementById('generarMatrices');
+        const matricesInput = document.getElementById('matricesInput');
+        const matriz1Div = document.getElementById('matriz1');
+        const matriz2Div = document.getElementById('matriz2');
+        const sumarMatricesBtn = document.getElementById('sumarMatrices');
+        const resultadoDiv = document.getElementById('resultado');
+        const matrizResultadoDiv = document.getElementById('matrizResultado');
+        const errorDiv = document.getElementById('error');
+        const nuevaSumaBtn = document.getElementById('nuevaSuma');
+
+        // Evento para generar las matrices según las dimensiones ingresadas
+        generarMatricesBtn.addEventListener('click', function() {
+            const filas = parseInt(filasInput.value);
+            const columnas = parseInt(columnasInput.value);
+            
+            if (isNaN(filas) || isNaN(columnas) || filas < 1 || columnas < 1) {
+                alert('Por favor, ingrese dimensiones válidas (números positivos).');
+                return;
+            }
+            
+            // Limpiamos matrices anteriores
+            matriz1Div.innerHTML = '';
+            matriz2Div.innerHTML = '';
+            errorDiv.textContent = '';
+            
+            // Configuramos el grid para las matrices
+            matriz1Div.style.gridTemplateColumns = `repeat(${columnas}, 60px)`;
+            matriz2Div.style.gridTemplateColumns = `repeat(${columnas}, 60px)`;
+            
+            // Generamos los inputs para matriz 1
+            for (let i = 0; i < filas; i++) {
+                for (let j = 0; j < columnas; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `m1-${i}-${j}`;
+                    input.dataset.fila = i;
+                    input.dataset.columna = j;
+                    matriz1Div.appendChild(input);
+                }
+            }
+            
+            // Generamos los inputs para matriz 2
+            for (let i = 0; i < filas; i++) {
+                for (let j = 0; j < columnas; j++) {
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.id = `m2-${i}-${j}`;
+                    input.dataset.fila = i;
+                    input.dataset.columna = j;
+                    matriz2Div.appendChild(input);
+                }
+            }
+            
+            // Mostramos la sección de matrices
+            matricesInput.style.display = 'block';
+            resultadoDiv.style.display = 'none';
+        });
+
+        // Evento para sumar las matrices
+        sumarMatricesBtn.addEventListener('click', function() {
+            const filas = parseInt(filasInput.value);
+            const columnas = parseInt(columnasInput.value);
+            
+            // Validamos los datos ingresados
+            let datosValidos = true;
+            let matriz1 = [];
+            let matriz2 = [];
+            
+            // Inicializamos las matrices
+            for (let i = 0; i < filas; i++) {
+                matriz1[i] = [];
+                matriz2[i] = [];
+                for (let j = 0; j < columnas; j++) {
+                    const valor1 = document.getElementById(`m1-${i}-${j}`).value;
+                    const valor2 = document.getElementById(`m2-${i}-${j}`).value;
+                    
+                    if (valor1 === '' || isNaN(Number(valor1))) {
+                        datosValidos = false;
+                        errorDiv.textContent = 'Todos los campos de la Matriz 1 deben contener valores numéricos';
+                        return;
+                    }
+                    
+                    if (valor2 === '' || isNaN(Number(valor2))) {
+                        datosValidos = false;
+                        errorDiv.textContent = 'Todos los campos de la Matriz 2 deben contener valores numéricos';
+                        return;
+                    }
+                    
+                    matriz1[i][j] = Number(valor1);
+                    matriz2[i][j] = Number(valor2);
+                }
+            }
+            
+            // Si los datos son válidos, realizamos la suma
+            if (datosValidos) {
+                // Realizamos la suma en el "servidor" (aquí lo hacemos en el cliente por simplicidad)
+                let matrizResultado = sumarMatrices(matriz1, matriz2, filas, columnas);
+                
+                // Mostramos el resultado
+                mostrarResultado(matrizResultado, filas, columnas);
+            }
+        });
+
+        // Función para sumar las matrices (simulando procesamiento en servidor)
+        function sumarMatrices(matriz1, matriz2, filas, columnas) {
+            let resultado = [];
+            
+            for (let i = 0; i < filas; i++) {
+                resultado[i] = [];
+                for (let j = 0; j < columnas; j++) {
+                    resultado[i][j] = matriz1[i][j] + matriz2[i][j];
+                }
+            }
+            
+            return resultado;
+        }
+
+        // Función para mostrar la matriz resultante
+        function mostrarResultado(matrizResultado, filas, columnas) {
+            matrizResultadoDiv.innerHTML = '';
+            matrizResultadoDiv.style.gridTemplateColumns = `repeat(${columnas}, 60px)`;
+            
+            for (let i = 0; i < filas; i++) {
+                for (let j = 0; j < columnas; j++) {
+                    const celda = document.createElement('div');
+                    celda.className = 'matrix-cell';
+                    celda.textContent = matrizResultado[i][j];
+                    matrizResultadoDiv.appendChild(celda);
+                }
+            }
+            
+            // Mostramos la sección de resultado
+            matricesInput.style.display = 'none';
+            resultadoDiv.style.display = 'block';
+        }
+
+        // Evento para realizar una nueva suma
+        nuevaSumaBtn.addEventListener('click', function() {
+            // Reseteamos el formulario y volvemos al paso 1
+            filasInput.value = 2;
+            columnasInput.value = 2;
+            matriz1Div.innerHTML = '';
+            matriz2Div.innerHTML = '';
+            matrizResultadoDiv.innerHTML = '';
+            errorDiv.textContent = '';
+            matricesInput.style.display = 'none';
+            resultadoDiv.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
